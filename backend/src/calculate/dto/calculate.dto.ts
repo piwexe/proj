@@ -7,6 +7,7 @@ export interface CalculateResult {
   ok: boolean;
   variant: string;
   load?: number;
+  rows?: [string, string][];
   notes?: string[];
 }
 

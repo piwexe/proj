@@ -13,8 +13,6 @@ const G = 9.806; // м/с²
  * Стратегия для осевой схемы без эксцентриситета:
  *  - plane = 'flat' ИЛИ 'wall2'
  *  - l1 = l2 = l3 = 0
- *
- * Логика перенесена из предыдущего calculate.service.ts.
  */
 @Injectable()
 export class VariantCompactFlatStrategy implements CalculateStrategy {
@@ -67,11 +65,11 @@ export class VariantCompactFlatStrategy implements CalculateStrategy {
     return {
       ok: true,
       variant: 'variant-compact-flat',
+      load: Number(F.toFixed(3)), // Н; округлили для стабильности
       // дополнительное поле, чтобы фронт мог получить то же, что и раньше
       // (массив пар [код, "K"])
       rows,
       notes: [
-        `F(на каретку)=${F.toFixed(3)} Н`,
         `napr=${input.guideCount}, karetki=${input.carriageCount}`,
       ],
     } as CalculateResult & { rows: [string, string][] };

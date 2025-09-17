@@ -5,7 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-
+  app.setGlobalPrefix('api');
   // Важное: включает class-validator/class-transformer на всём приложении
   app.useGlobalPipes(
     new ValidationPipe({
@@ -19,7 +19,7 @@ async function bootstrap() {
   const port = config.get<number>('PORT') ?? 3000;
 
   await app.listen(port, () => {
-    console.log(`🚀 Server is running on http://localhost:${port}`);
+    console.log(`API → http://localhost:${port}/api`);
   });
 }
 bootstrap();
