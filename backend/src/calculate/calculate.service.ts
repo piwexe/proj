@@ -6,7 +6,6 @@ import { CalculateInput, CalculateResult } from './dto/calculate.dto';
 export class CalculateService {
   constructor(private readonly engine: EngineService) {}
 
-  // было: run(...) : CalculateResult
   async run(input: CalculateInput): Promise<CalculateResult> {
     return this.engine.calculate(input);
   }

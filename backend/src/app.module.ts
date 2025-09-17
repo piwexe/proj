@@ -8,7 +8,7 @@ import { RollerGuide } from './db/entities/roller-guide.entity';
 import { EngineService } from './calculate/engine/engine.service';
 import { CALC_STRATEGIES } from './calculate/engine/tokens';
 import { VariantCompactFlatStrategy } from './calculate/engine/strategies/variant-compact-flat';
-
+import { VariantAxialEccNapr1Strategy } from './calculate/engine/strategies/variant-axial-ecc-napr1';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -32,18 +32,20 @@ import { VariantCompactFlatStrategy } from './calculate/engine/strategies/varian
   providers: [
     CalculateService,
     EngineService,
-
     // регистрируем стратегии как провайдеры
+    VariantAxialEccNapr1Strategy,
     VariantCompactFlatStrategy,
-
     // токен с массивом стратегий
     {
       provide: CALC_STRATEGIES,
-      useFactory: (compactFlat: VariantCompactFlatStrategy) => [
-        compactFlat,
-        // сюда добавятся новые стратегии
+      useFactory: (
+        axialEccNapr1: VariantAxialEccNapr1Strategy,
+        compactFlat: VariantCompactFlatStrategy,
+      ) => [
+        axialEccNapr1, // более специфичная сначала (napr=1 + эксцентриситет)
+        compactFlat,   // базовая «осевая без эксцентриситета»
       ],
-      inject: [VariantCompactFlatStrategy],
+      inject: [VariantAxialEccNapr1Strategy, VariantCompactFlatStrategy],
     },
   ],
 })

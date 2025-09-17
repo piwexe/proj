@@ -12,7 +12,6 @@ export class EngineService {
     private readonly strategies: CalculateStrategy[],
   ) {}
 
-  // было: calculate(...) : CalculateResult
   async calculate(input: CalculateInput): Promise<CalculateResult> {
     const strategy = this.strategies.find(s => s.canHandle(input));
 
