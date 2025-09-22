@@ -21,7 +21,7 @@ export class VariantCompactRadialStrategy implements CalculateStrategy {
   ) {}
 
   canHandle(input: CalculateInput): boolean {
-    const notAxialPlane = input.plane !== 'flat' && input.plane !== 'wall2';
+    const notAxialPlane = input.plane !== 'flat' && input.plane !== 'wall' && input.plane !== 'wall2';
     const noEccentricity = input.l1 === 0 && input.l2 === 0 && input.l3 === 0;
 
     return notAxialPlane && noEccentricity;

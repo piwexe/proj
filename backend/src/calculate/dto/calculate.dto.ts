@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 
-export type PlaneType = 'flat' | 'upright' | 'other' | string;
+export type PlaneType = 'flat' | 'vertical1' | 'horizontal' | 'wall' | 'vertical2' | 'wall2';
 
 export interface CalculateResult {
   ok: boolean;

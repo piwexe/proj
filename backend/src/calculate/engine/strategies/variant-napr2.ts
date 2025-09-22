@@ -23,7 +23,7 @@ export class VariantNapr2Strategy implements CalculateStrategy {
   ) {}
 
   canHandle(input: CalculateInput): boolean {
-    const axialPlane = input.plane === 'flat' || input.plane === 'wall2';
+    const axialPlane = input.plane === 'flat' || input.plane === 'wall' || input.plane === 'wall2';
     const hasEcc = !(input.l1 === 0 && input.l2 === 0 && input.l3 === 0);
     const twoGuide = input.guideCount === 2;             // napr = 2
     return axialPlane && hasEcc && twoGuide;
@@ -62,7 +62,7 @@ export class VariantNapr2Strategy implements CalculateStrategy {
       if (L1 !== 0) rad2  = Math.abs((m * G * L1) / (karetki * L4));
       if (L2 !== 0) osev2 = Math.abs((m * G * L2) / (karetki * L5));
       My = 0;
-    } else {
+    } else if (karetki === 1) {
       // одна каретка на направляющей
       if (L2 !== 0) My = Math.abs((m * G * L2) / napr); // napr = 2
       const nagL1 = L1 !== 0 ? Math.abs((m * G * L1) / (karetki * L5)) : 0;

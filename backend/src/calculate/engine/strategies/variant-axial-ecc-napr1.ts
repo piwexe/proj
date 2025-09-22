@@ -37,7 +37,7 @@ export class VariantAxialEccNapr1Strategy implements CalculateStrategy {
   ) {}
 
   canHandle(input: CalculateInput): boolean {
-    const axialPlane = input.plane === 'flat' || input.plane === 'wall2';
+    const axialPlane = input.plane === 'flat' || input.plane === 'wall' || input.plane === 'wall2';
     const hasEcc = !(input.l1 === 0 && input.l2 === 0 && input.l3 === 0);
     const oneGuide = input.guideCount === 1;             // napr = 1
     return axialPlane && hasEcc && oneGuide;
@@ -76,7 +76,7 @@ export class VariantAxialEccNapr1Strategy implements CalculateStrategy {
         My = Math.abs(m * G * L2);
       }
       osev2 = 0;
-    } else {
+    } else if (karetki === 2) {
       // две каретки → «вторая осевая», момент Y не учитываем
       My = 0;
       if (L2 !== 0) {
