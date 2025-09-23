@@ -8,27 +8,6 @@ import { RollerGuide } from '../../../db/entities/roller-guide.entity';
 
 const G = 9.806; // м/с²
 
-/**
- * Осевая схема с эксцентриситетом, ОДНА направляющая (napr = 1).
- * Условия:
- *  - plane ∈ {'flat','wall2'}
- *  - есть эксцентриситет: (L1,L2,L3) не все нули
- *  - guideCount === 1
- *
- * Формулы:
- *  F1 = (m * g) / karetki                   // базовая осевая на каретку
- *  Mx = |m * g * L1| / karetki              // если L1 ≠ 0, иначе 0
- *
- *  если karetki = 1:
- *    My   = |m * g * L2|                    // если L2 ≠ 0
- *    osev2 = 0
- *  если karetki = 2:
- *    My   = 0
- *    osev2 = |m * g * L2| / (karetki * L4)  // если L2 ≠ 0
- *
- *  K = 1 / ( Mx/Mx_bd + My/My_bd + F1/osevaya_bd + osev2/osevaya_bd )
- *    (слагаемые добавляются только если соответствующий предел из БД > 0)
- */
 @Injectable()
 export class VariantAxialEccNapr1Strategy implements CalculateStrategy {
   constructor(
@@ -37,18 +16,14 @@ export class VariantAxialEccNapr1Strategy implements CalculateStrategy {
   ) {}
 
   canHandle(input: CalculateInput): boolean {
-    const axialPlane = input.plane === 'flat' || input.plane === 'wall' || input.plane === 'wall2';
+    const axialPlane = input.plane === 'flat' || input.plane === 'wall2';
     const hasEcc = !(input.l1 === 0 && input.l2 === 0 && input.l3 === 0);
     const oneGuide = input.guideCount === 1;             // napr = 1
     return axialPlane && hasEcc && oneGuide;
   }
 
   async calculate(input: CalculateInput): Promise<CalculateResult> {
-    if (input.mass <= 0) throw new BadRequestException('mass должен быть > 0');
-    if (input.carriageCount <= 0) throw new BadRequestException('carriageCount должен быть > 0');
-    if (input.carriageCount !== 1 && input.carriageCount !== 2) {
-      throw new BadRequestException('carriageCount должен быть 1 или 2');
-    }
+    
     if (input.carriageCount === 2 && input.l4 === 0) {
       throw new BadRequestException('для 2 кареток L4 должен быть > 0');
     }
@@ -59,7 +34,7 @@ export class VariantAxialEccNapr1Strategy implements CalculateStrategy {
     const L2 = input.l2;
 
     // базовая осевая на одну каретку (napr=1 => делим только на karetki)
-    const F1 = (m * G) / karetki;
+    const F = (m * G) / karetki;
 
     // эксцентриситет
     let Mx = 0;
@@ -94,7 +69,7 @@ export class VariantAxialEccNapr1Strategy implements CalculateStrategy {
       let sum = 0;
       if (Mx > 0 && Mx_bd > 0) sum += Mx / Mx_bd;
       if (My > 0 && My_bd > 0) sum += My / My_bd;
-      if (F1 > 0 && osevaya_bd > 0) sum += F1 / osevaya_bd;
+      if (F > 0 && osevaya_bd > 0) sum += F / osevaya_bd;
       if (osev2 > 0 && osevaya_bd > 0) sum += osev2 / osevaya_bd;
 
       const K = sum > 0 ? 1 / sum : 0;
@@ -111,7 +86,7 @@ export class VariantAxialEccNapr1Strategy implements CalculateStrategy {
     return {
       ok: true,
       variant: 'variant-axial-ecc-napr1',
-      load: Number(F1.toFixed(3)), // базовая осевая на 1 каретку, Н
+      load: Number(F.toFixed(3)), // базовая осевая на 1 каретку, Н
       rows,
       notes: [
         `napr=1, karetki=${karetki}`,

@@ -1,7 +1,16 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString, IsInt, IsEnum, IsIn, Min} from 'class-validator';
 
-export type PlaneType = 'flat' | 'vertical1' | 'horizontal' | 'wall' | 'vertical2' | 'wall2';
+export enum PlaneEnum {
+  flat = 'flat',
+  vertical1 = 'vertical1',
+  horizontal = 'horizontal',
+  wall = 'wall',
+  vertical2 = 'vertical2',
+  wall2 = 'wall2',
+}
+
+export type PlaneType = PlaneEnum; // алиас на enum:
 
 export interface CalculateResult {
   ok: boolean;
@@ -11,10 +20,6 @@ export interface CalculateResult {
   notes?: string[];
 }
 
-/**
- * Интерфейс, который ожидают стратегии/engine.
- * Наш DTO ниже "реализует" этот контракт по факту полями.
- */
 export interface CalculateInput {
   isCompact: boolean;
   mass: number;
@@ -30,43 +35,68 @@ export interface CalculateInput {
   plane: PlaneType;
 }
 
-/**
- * Твой исходный DTO с трансформами — оставляем.
- * Благодаря глобальному ValidationPipe({ transform: true })
- * строки из запроса превратятся в числа/булевы до входа в сервис.
- */
 export class CalcInputDto implements CalculateInput {
   @Transform(({ value }) => value === true || value === 'true')
   @IsBoolean()
   isCompact: boolean;
 
-  @Transform(({ value }) => Number(value)) @IsNumber()
-  mass: number; // m (кг)
+  @Transform(({ value }) => Number(value))
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { message: 'mass должен быть числом' },
+  )
+  @Min(0.000001, { message: 'mass должен быть > 0' })
+  mass: number; // кг
 
-  @Transform(({ value }) => Number(value)) @IsNumber()
+ @Transform(({ value }) => Number(value))
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l1 число' })
+  @Min(0, { message: 'l1 не может быть отрицательным' })
   l1: number;
-  @Transform(({ value }) => Number(value)) @IsNumber()
+
+  @Transform(({ value }) => Number(value))
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l2 число' })
+  @Min(0, { message: 'l2 не может быть отрицательным' })
   l2: number;
-  @Transform(({ value }) => Number(value)) @IsNumber()
+
+  @Transform(({ value }) => Number(value))
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l3 число' })
+  @Min(0, { message: 'l3 не может быть отрицательным' })
   l3: number;
-  @Transform(({ value }) => Number(value)) @IsNumber()
+
+  @Transform(({ value }) => Number(value))
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l4 число' })
+  @Min(0, { message: 'l4 не может быть отрицательным' })
   l4: number;
-  @Transform(({ value }) => Number(value)) @IsNumber()
+
+  @Transform(({ value }) => Number(value))
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l5 число' })
+  @Min(0, { message: 'l5 не может быть отрицательным' })
   l5: number;
 
-  @Transform(({ value }) => Number(value)) @IsNumber()
+  @Transform(({ value }) => Number(value))
+  @IsNumber(
+    { allowNaN: false, allowInfinity: false },
+    { message: 'maxTemperature должно быть числом' },
+  )
   maxTemperature: number;
 
   @Transform(({ value }) => value === true || value === 'true')
   @IsBoolean()
   aggressiveEnv: boolean;
 
-  @Transform(({ value }) => Number(value)) @IsNumber()
+  @Transform(({ value }) => Number(value))
+  @IsInt({ message: 'guideCount должен быть целым числом' })
+  @IsIn([1, 2], { message: 'guideCount должен быть 1 или 2' })
   guideCount: number; // направляющих
 
-  @Transform(({ value }) => Number(value)) @IsNumber()
+  @Transform(({ value }) => Number(value))
+  @IsInt({ message: 'carriageCount должен быть целым числом' })
+  @IsIn([1, 2], { message: 'carriageCount должен быть 1 или 2' })
   carriageCount: number; // кареток
 
   @IsString()
-  plane: PlaneType; // 'flat', 'upright', ...
+  @IsEnum(PlaneEnum, {
+    message: `plane должно быть одним из: ${Object.values(PlaneEnum).join(', ')}`,
+  })
+  plane: PlaneEnum;
 }

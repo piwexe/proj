@@ -9,11 +9,6 @@ import { RollerGuide } from '../../../db/entities/roller-guide.entity';
 
 const G = 9.806; // м/с²
 
-/**
- * Стратегия для осевой схемы без эксцентриситета:
- *  - plane = 'flat' ИЛИ 'wall2'
- *  - l1 = l2 = l3 = 0
- */
 @Injectable()
 export class VariantCompactFlatStrategy implements CalculateStrategy {
   constructor(
@@ -22,23 +17,13 @@ export class VariantCompactFlatStrategy implements CalculateStrategy {
   ) {}
 
   canHandle(input: CalculateInput): boolean {
-    const planeIsAxial = input.plane === 'flat' || input.plane === 'wall' || input.plane === 'wall2';
+    const planeIsAxial = input.plane === 'flat' || input.plane === 'wall2';
     const noEccentricity = input.l1 === 0 && input.l2 === 0 && input.l3 === 0;
     return planeIsAxial && noEccentricity;
   }
 
   async calculate(input: CalculateInput): Promise<CalculateResult> {
-    // проверки входных параметров
-    if (input.mass <= 0) {
-      throw new BadRequestException('mass должен быть > 0');
-    }
-    if (input.guideCount <= 0) {
-      throw new BadRequestException('guideCount должен быть > 0');
-    }
-    if (input.carriageCount <= 0) {
-      throw new BadRequestException('carriageCount должен быть > 0');
-    }
-
+   
     // 1) осевая нагрузка на ОДНУ каретку:
     // F = (m * g) / (napr * karetki)
     const F = (input.mass * G) / (input.guideCount * input.carriageCount);
@@ -48,8 +33,8 @@ export class VariantCompactFlatStrategy implements CalculateStrategy {
 
     // 3) считаем K = Fmax / F для каждой; формат «1,23»
     const rows: [string, string][] = guides.map((g) => {
-      const Fmax = Number((g as any).axial ?? 0); // допустимая осевая нагрузка (из БД)
-      const K = F <= 0 ? 0 : Fmax / F;
+      const rad_bd = Number((g as any).axial ?? 0); // допустимая осевая нагрузка (из БД)
+      const K = F <= 0 ? 0 : rad_bd / F;
       const formatted = K.toFixed(2).replace('.', ',');
       return [g.name, formatted];
     });

@@ -23,11 +23,6 @@ export class VariantVerticalStrategy implements CalculateStrategy {
   }
 
   async calculate(input: CalculateInput): Promise<CalculateResult> {
-    // Проверка входных данных
-    if (input.mass <= 0) throw new BadRequestException('mass должен быть > 0');
-    if (input.carriageCount <= 0) throw new BadRequestException('carriageCount должен быть > 0');
-    if (input.carriageCount !== 1 && input.carriageCount !== 2) throw new BadRequestException('carriageCount должен быть 1 или 2');
-    if (input.guideCount !== 1 && input.guideCount !== 2) throw new BadRequestException('guideCount должен быть 1 или 2');
     
     // Инициализация переменных
     const m = input.mass;
@@ -38,7 +33,7 @@ export class VariantVerticalStrategy implements CalculateStrategy {
     const L5 = input.l5;
 
     // 1) Вычисляем радиальную нагрузку:
-    const Fmax = (input.mass * G) / (input.carriageCount * input.guideCount);
+    const F = (input.mass * G) / (input.carriageCount * input.guideCount);
 
     // 2) Проверяем смещения и вычисляем моментные нагрузки:
     let My = 0;
@@ -78,7 +73,7 @@ export class VariantVerticalStrategy implements CalculateStrategy {
       let sum = 0;
       if (Mz > 0 && Mz_bd > 0) sum += Mz / Mz_bd;
       if (My > 0 && My_bd > 0) sum += My / My_bd;
-      if (Fmax > 0 && rad_bd > 0) sum += Fmax / rad_bd;
+      if (F > 0 && rad_bd > 0) sum += F / rad_bd;
       if (osev2 > 0 && osevaya_bd > 0) sum += osev2 / osevaya_bd;
 
       const K = sum > 0 ? 1 / sum : 0;
@@ -95,7 +90,7 @@ export class VariantVerticalStrategy implements CalculateStrategy {
     return {
       ok: true,
       variant: 'variant-vertical',
-      load: Number(Fmax.toFixed(3)), // Н; округляем для стабильности
+      load: Number(F.toFixed(3)), // Н; округляем для стабильности
       rows,
       notes: [
       `napr=${input.guideCount}, karetki=${input.carriageCount}`,

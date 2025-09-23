@@ -23,18 +23,14 @@ export class VariantNapr2Strategy implements CalculateStrategy {
   ) {}
 
   canHandle(input: CalculateInput): boolean {
-    const axialPlane = input.plane === 'flat' || input.plane === 'wall' || input.plane === 'wall2';
+    const axialPlane = input.plane === 'flat' || input.plane === 'wall2';
     const hasEcc = !(input.l1 === 0 && input.l2 === 0 && input.l3 === 0);
     const twoGuide = input.guideCount === 2;             // napr = 2
     return axialPlane && hasEcc && twoGuide;
   }
 
   async calculate(input: CalculateInput): Promise<CalculateResult> {
-    if (input.mass <= 0) throw new BadRequestException('mass должен быть > 0');
-    if (input.carriageCount <= 0) throw new BadRequestException('carriageCount должен быть > 0');
-    if (input.carriageCount !== 1 && input.carriageCount !== 2) {
-      throw new BadRequestException('carriageCount должен быть 1 или 2');
-    }
+    
     if (input.carriageCount === 2 && input.l4 === 0) {
       throw new BadRequestException('для 2 кареток L4 должен быть > 0');
     }
