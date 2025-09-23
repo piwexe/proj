@@ -38,7 +38,7 @@ export class VariantVerticalStrategy implements CalculateStrategy {
     const L5 = input.l5;
 
     // 1) Вычисляем радиальную нагрузку:
-    const rad = (input.mass * G) / (input.carriageCount * input.guideCount);
+    const Fmax = (input.mass * G) / (input.carriageCount * input.guideCount);
 
     // 2) Проверяем смещения и вычисляем моментные нагрузки:
     let My = 0;
@@ -70,18 +70,37 @@ export class VariantVerticalStrategy implements CalculateStrategy {
 
     // 6) Вычисляем коэффициент запаса для каждой направляющей
     const rows: [string, string][] = guides.map((g) => {
-      const Fmax = Number((g as any).radialnaia ?? 0); // Допустимая радиальная нагрузка из базы данных
-      const K = (rad <= 0 ? 0 : Fmax / rad) + (osev2 <= 0 ? 0 : Fmax / osev2);
+      const My_bd = Number((g as any).my ?? 0);
+      const Mz_bd = Number((g as any).mz ?? 0);
+      const osevaya_bd = Number((g as any).axial ?? 0);
+      const rad_bd = Number((g as any).radial ?? 0);
+
+      let sum = 0;
+      if (Mz > 0 && Mz_bd > 0) sum += Mz / Mz_bd;
+      if (My > 0 && My_bd > 0) sum += My / My_bd;
+      if (Fmax > 0 && rad_bd > 0) sum += Fmax / rad_bd;
+      if (osev2 > 0 && osevaya_bd > 0) sum += osev2 / osevaya_bd;
+
+      const K = sum > 0 ? 1 / sum : 0;
       const formatted = K.toFixed(2).replace('.', ',');
       return [g.name, formatted];
     });
 
-    // 7) Возвращаем результат
+    rows.sort(
+      (a, b) =>
+        parseFloat((b[1] || '0').replace(',', '.')) -
+        parseFloat((a[1] || '0').replace(',', '.')),
+    );
+
     return {
       ok: true,
       variant: 'variant-vertical',
-      load: Number(rad.toFixed(3)), // Н; округляем для стабильности
+      load: Number(Fmax.toFixed(3)), // Н; округляем для стабильности
       rows,
+      notes: [
+      `napr=${input.guideCount}, karetki=${input.carriageCount}`,
+      `Mx=${Mz.toFixed(3)} Н·м, My=${My.toFixed(3)} Н·м, osev2=${osev2.toFixed(3)} Н`,
+    ],
     } as CalculateResult & { rows: [string, string][] };
   }
 }
