@@ -15,9 +15,8 @@ export class VariantVerticalStrategy implements CalculateStrategy {
     private readonly guideRepo: Repository<RollerGuide>,
   ) {}
 
-  // Условие выбора стратегии: rasp == "вертикально" и есть хотя бы одно смещение
   canHandle(input: CalculateInput): boolean {
-    const isVertical = input.plane === 'vertical1' || input.plane === 'vertical2';
+    const isVertical = input.plane === 'vertical1';
     const hasEccentricity = !(input.l1 === 0 && input.l2 === 0 && input.l3 === 0);
     return isVertical && hasEccentricity;
   }

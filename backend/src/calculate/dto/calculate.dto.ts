@@ -49,18 +49,15 @@ export class CalcInputDto implements CalculateInput {
   mass: number; // кг
 
  @Transform(({ value }) => Number(value))
-  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l1 число' })
-  @Min(0, { message: 'l1 не может быть отрицательным' })
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l1  должно быть числом' })
   l1: number;
 
   @Transform(({ value }) => Number(value))
-  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l2 число' })
-  @Min(0, { message: 'l2 не может быть отрицательным' })
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l2  должно быть числом' })
   l2: number;
 
   @Transform(({ value }) => Number(value))
-  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l3 число' })
-  @Min(0, { message: 'l3 не может быть отрицательным' })
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l3  должно быть числом' })
   l3: number;
 
   @Transform(({ value }) => Number(value))

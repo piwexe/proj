@@ -12,6 +12,7 @@ import { VariantCompactFlatStrategy } from './calculate/engine/strategies/varian
 import { VariantAxialEccNapr1Strategy } from './calculate/engine/strategies/variant-axial-ecc-napr1';
 import { VariantCompactRadialStrategy } from './calculate/engine/strategies/variant-compact-radial';
 import { VariantVerticalStrategy } from './calculate/engine/strategies/variant-vertical';
+import { VariantNapr2NonVerticalStrategy } from './calculate/engine/strategies/variant-napr2-non-vertical';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { VariantVerticalStrategy } from './calculate/engine/strategies/variant-v
     VariantCompactFlatStrategy,
     VariantCompactRadialStrategy,
     VariantVerticalStrategy,
+    VariantNapr2NonVerticalStrategy,
     // токен с массивом стратегий
     {
       provide: CALC_STRATEGIES,
@@ -51,14 +53,16 @@ import { VariantVerticalStrategy } from './calculate/engine/strategies/variant-v
         compactFlat: VariantCompactFlatStrategy,
         radial: VariantCompactRadialStrategy,
         vertical: VariantVerticalStrategy,
+        napr2nonvertical: VariantNapr2NonVerticalStrategy,
       ) => [
         napr2,    // napr=2
         axialEccNapr1, // более специфичная сначала (napr=1 + эксцентриситет)
         compactFlat,   // базовая «осевая без эксцентриситета»
         radial,        // базовая «радиальная без эксцентриситета»
         vertical,      // вертикальная с эксцентриситетом
+        napr2nonvertical,  // napr=2, не вертикальная
       ],
-      inject: [VariantNapr2Strategy, VariantAxialEccNapr1Strategy, VariantCompactFlatStrategy, VariantCompactRadialStrategy, VariantVerticalStrategy],
+      inject: [VariantNapr2Strategy, VariantAxialEccNapr1Strategy, VariantCompactFlatStrategy, VariantCompactRadialStrategy, VariantVerticalStrategy, VariantNapr2NonVerticalStrategy],
     },
   ],
 })

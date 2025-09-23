@@ -8,13 +8,6 @@ import { RollerGuide } from '../../../db/entities/roller-guide.entity';
 
 const G = 9.806; // м/с²
 
-/**
- * Две направляющие (napr = 2).
- * - karetki = 2: считаем rad2 и osev2, My = 0.
- * - karetki = 1: считаем My, а вклад по L1 идёт в osev2 (если flat|wall2), иначе в rad2.
- * Всегда учитываем базовую осевую на каретку: osev = (m*g)/(napr*karetki).
- * K = 1 / ( My/My_bd + osev/osevaya_bd + osev2/osevaya_bd + rad2/radial_bd ).
- */
 @Injectable()
 export class VariantNapr2Strategy implements CalculateStrategy {
   constructor(
