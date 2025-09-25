@@ -3,28 +3,86 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { loadAllParams } from '../utils/storage';
 
+type Row = [string, string];
+
+type BackendResponse = {
+  ok?: boolean;
+  variant?: string;
+  load?: number;
+  rows?: Row[];
+  notes?: string[];
+  // поля ошибок от NestJS/валидации
+  message?: string | string[];
+  error?: string;
+  statusCode?: number;
+};
+
+function pickServerErrorText(data: BackendResponse | null, fallback: string): string {
+  if (!data) return fallback;
+  if (Array.isArray(data.message) && data.message.length) return data.message.join('\n');
+  if (typeof data.message === 'string' && data.message.trim()) return data.message;
+  if (typeof data.error === 'string' && data.error.trim()) return data.error;
+  return fallback;
+}
+
 export default function ResultPage() {
   const navigate = useNavigate();
-  const [results, setResults] = useState<[string, string][]>([]);
+
+  const [results, setResults] = useState<Row[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // держим про запас (не рендерим пока)
+  const [variant, setVariant] = useState<string | undefined>();
+  const [loadValue, setLoadValue] = useState<number | undefined>();
+  const [notes, setNotes] = useState<string[] | undefined>();
 
   const handleCalculate = async () => {
     setLoading(true);
     setError(null);
+    setResults([]);
+    setVariant(undefined);
+    setLoadValue(undefined);
+    setNotes(undefined);
+
     try {
       const payload = loadAllParams();
-      const response = await fetch('http://localhost:5000/api/calculate', {
+
+      const resp = await fetch('http://localhost:3000/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) throw new Error('Ошибка при запросе');
+      let data: BackendResponse | null = null;
+      try {
+        data = (await resp.json()) as BackendResponse;
+      } catch {
+        // тело может отсутствовать при некоторых 4xx/5xx
+      }
 
-      const data: [string, string][] = await response.json();
-      setResults(data);
-    } catch (err) {
+      if (!resp.ok) {
+        const msg = pickServerErrorText(data, `Ошибка сервера: ${resp.status}`);
+        setError(msg);
+        return;
+      }
+
+      if (data && data.ok === false) {
+        const msg = pickServerErrorText(data, 'Бэкенд вернул ошибку.');
+        setError(msg);
+        return;
+      }
+
+      if (!data || !Array.isArray(data.rows)) {
+        setError('В ответе нет данных для таблицы.');
+        return;
+      }
+
+      setResults(data.rows);
+      setVariant(data.variant);
+      setLoadValue(data.load);
+      setNotes(data.notes);
+    } catch {
       setError('Не удалось выполнить расчёт. Проверьте соединение с сервером.');
     } finally {
       setLoading(false);
@@ -39,13 +97,13 @@ export default function ResultPage() {
         <button
           onClick={handleCalculate}
           disabled={loading}
-          className="mb-6 bg-orange-300 text-white font-bold px-8 py-2 rounded-full hover:bg-orange-400"
+          className="mb-6 bg-orange-300 text-white font-bold px-8 py-2 rounded-full hover:bg-orange-400 disabled:opacity-60"
         >
           {loading ? 'Рассчитываем...' : 'Рассчитать'}
         </button>
 
         {error && (
-          <div className="text-red-600 bg-red-100 px-4 py-2 rounded mb-4">
+          <div className="text-red-600 bg-red-100 px-4 py-2 rounded mb-4 whitespace-pre-line text-center max-w-2xl">
             {error}
           </div>
         )}

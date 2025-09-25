@@ -7,27 +7,31 @@ import load_l1_l2_l3 from '../images/load_l1_l2_l3.png';
 export default function LoadPage() {
   const navigate = useNavigate();
 
+  const [mass, setM] = useState('0.5');
   const [l1, setL1] = useState('0.2');
   const [l2, setL2] = useState('1');
   const [l3, setL3] = useState('1');
   const [warning, setWarning] = useState(false);
 
   useEffect(() => {
+    setM(loadParam('mass', 0.5).toString());
     setL1(loadParam('l1', 0.2).toString());
     setL2(loadParam('l2', 1).toString());
     setL3(loadParam('l3', 1).toString());
   }, []);
 
   const handleApply = () => {
+    const numM = Number(mass);
     const numL1 = Number(l1);
     const numL2 = Number(l2);
     const numL3 = Number(l3);
 
-    if ([numL1, numL2, numL3].some((v) => isNaN(v))) {
+    if ([numM, numL1, numL2, numL3].some((v) => isNaN(v) || numM <= 0)) {
       setWarning(true);
       return;
     }
 
+    saveParam('mass', numM);
     saveParam('l1', numL1);
     saveParam('l2', numL2);
     saveParam('l3', numL3);
@@ -45,6 +49,17 @@ export default function LoadPage() {
 
       <main className="flex-1 flex flex-col md:flex-row items-center justify-around px-10 py-8">
         <div className="flex flex-col gap-6 w-full max-w-sm">
+          
+          <div>
+            <label className="block text-orange-500 font-semibold mb-1">Масса нагрузки в кг</label>
+            <input
+              type="text"
+              value={mass}
+              onChange={handleInput(setM)}
+              className="w-full bg-orange-200 text-white text-center font-semibold rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+          </div>
+
           <div>
             <label className="block text-orange-500 font-semibold mb-1">Смещение по L1 в метрах</label>
             <input
@@ -76,6 +91,7 @@ export default function LoadPage() {
           </div>
 
           <p className="text-orange-500 text-sm">
+            Масса нагрузкидолжна быть больше 0. <br />
             Если смещения по осям нет, то в полях следует указать - 0. <br />
             Если смещение направлено в другую сторону относительно схемы, то следует указать значение с минусом.
           </p>
@@ -96,7 +112,7 @@ export default function LoadPage() {
 
         <img
           src={load_l1_l2_l3}
-          alt="L1 L2 L3 spacing"
+          alt="Mass L1 L2 L3 spacing"
           className="max-w-[400px] w-full h-auto mt-10 md:mt-0"
         />
       </main>
