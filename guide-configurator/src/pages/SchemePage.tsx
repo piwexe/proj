@@ -2,7 +2,17 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { loadParam, saveParam } from '../utils/storage';
-import rail_example from '../images/rail_example.png';
+import guid1car1 from '../images/guid1car1.png';
+import guid1car2 from '../images/guid1car2.png';
+import guid2car1 from '../images/guid2car1.png';
+import guid2car2 from '../images/guid2car2.png';
+
+const schemeImages: Record<string, string> = {
+  '1-1': guid1car1,
+  '1-2': guid1car2,
+  '2-1': guid2car1,
+  '2-2': guid2car2,
+};
 
 export default function SchemePage() {
   const navigate = useNavigate();
@@ -65,7 +75,7 @@ export default function SchemePage() {
         </div>
 
         <img
-          src={rail_example}
+          src={schemeImages[`${guideCount}-${carriageCount}`]}
           alt="Rail scheme"
           className="max-w-[400px] w-full h-auto mt-10 md:mt-0"
         />
