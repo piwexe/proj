@@ -32,11 +32,6 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // держим про запас (не рендерим пока)
-  const [variant, setVariant] = useState<string | undefined>();
-  const [loadValue, setLoadValue] = useState<number | undefined>();
-  const [notes, setNotes] = useState<string[] | undefined>();
-
   // сообщение о недоступной спецификации
   const [specError, setSpecError] = useState<string | null>(null);
 
@@ -73,9 +68,6 @@ export default function ResultPage() {
     setLoading(true);
     setError(null);
     setResults([]);
-    setVariant(undefined);
-    setLoadValue(undefined);
-    setNotes(undefined);
 
     try {
       const payload = loadAllParams();
@@ -111,9 +103,6 @@ export default function ResultPage() {
       }
 
       setResults(data.rows);
-      setVariant(data.variant);
-      setLoadValue(data.load);
-      setNotes(data.notes);
     } catch {
       setError('Не удалось выполнить расчёт. Проверьте соединение с сервером.');
     } finally {
