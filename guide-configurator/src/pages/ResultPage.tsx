@@ -37,6 +37,38 @@ export default function ResultPage() {
   const [loadValue, setLoadValue] = useState<number | undefined>();
   const [notes, setNotes] = useState<string[] | undefined>();
 
+  // сообщение о недоступной спецификации
+  const [specError, setSpecError] = useState<string | null>(null);
+
+  const handleDownloadSpec = async (code: string) => {
+    setSpecError(null);
+    const url = `/specs/${code}.pdf`;
+
+    try {
+      const resp = await fetch(url);
+      const contentType = resp.headers.get('content-type') ?? '';
+
+      // dev-сервер на отсутствующий файл может вернуть 200 с HTML (index.html),
+      // поэтому проверяем и статус, и тип содержимого
+      if (!resp.ok || !contentType.includes('pdf')) {
+        setSpecError(`Спецификация «${code}» недоступна.`);
+        return;
+      }
+
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `${code}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      setSpecError(`Не удалось скачать спецификацию «${code}».`);
+    }
+  };
+
   const handleCalculate = async () => {
     setLoading(true);
     setError(null);
@@ -94,13 +126,15 @@ export default function ResultPage() {
       <Header />
 
       <main className="flex flex-col items-center px-6 py-8">
-        <button
-          onClick={handleCalculate}
-          disabled={loading}
-          className="mb-6 bg-orange-300 text-white font-bold px-8 py-2 rounded-full hover:bg-orange-400 disabled:opacity-60"
-        >
-          {loading ? 'Рассчитываем...' : 'Рассчитать'}
-        </button>
+        {results.length === 0 && (
+          <button
+            onClick={handleCalculate}
+            disabled={loading}
+            className="mb-6 bg-orange-300 text-white font-bold px-8 py-2 rounded-full hover:bg-orange-400 disabled:opacity-60"
+          >
+            {loading ? 'Рассчитываем...' : 'Рассчитать'}
+          </button>
+        )}
 
         {error && (
           <div className="text-red-600 bg-red-100 px-4 py-2 rounded mb-4 whitespace-pre-line text-center max-w-2xl">
@@ -122,12 +156,26 @@ export default function ResultPage() {
                   key={code}
                   className={`text-center ${index % 2 === 0 ? 'bg-white' : 'bg-orange-100'}`}
                 >
-                  <td className="py-2 font-semibold">{code}</td>
+                  <td className="py-2 font-semibold">
+                    <button
+                      onClick={() => handleDownloadSpec(code)}
+                      className="text-orange-500 hover:text-orange-700 underline cursor-pointer"
+                      title="Скачать спецификацию"
+                    >
+                      {code}
+                    </button>
+                  </td>
                   <td className="py-2 font-bold">{value}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        )}
+
+        {specError && (
+          <div className="text-red-600 bg-red-100 px-4 py-2 rounded mt-4 text-center max-w-md">
+            {specError}
+          </div>
         )}
 
         <button
