@@ -113,7 +113,6 @@ export default function ResultPage() {
   return (
     <div className="min-h-screen flex flex-col justify-between bg-white">
       <Header />
-
       <main className="flex flex-col items-center px-6 py-8">
         {results.length === 0 && (
           <button
@@ -124,13 +123,11 @@ export default function ResultPage() {
             {loading ? 'Рассчитываем...' : 'Рассчитать'}
           </button>
         )}
-
         {error && (
           <div className="text-red-600 bg-red-100 px-4 py-2 rounded mb-4 whitespace-pre-line text-center max-w-2xl">
             {error}
           </div>
         )}
-
         {results.length > 0 && (
           <table className="w-full max-w-md border-separate border-spacing-y-1">
             <thead>
@@ -160,13 +157,11 @@ export default function ResultPage() {
             </tbody>
           </table>
         )}
-
         {specError && (
           <div className="text-red-600 bg-red-100 px-4 py-2 rounded mt-4 text-center max-w-md">
             {specError}
           </div>
         )}
-
         <button
           onClick={() => navigate('/')}
           className="mt-10 bg-orange-300 text-white font-bold px-8 py-2 rounded-full hover:bg-orange-400"
@@ -174,7 +169,6 @@ export default function ResultPage() {
           Начало
         </button>
       </main>
-
       <footer className="flex justify-start px-6 py-4">
         <button
           onClick={() => navigate('/environment')}
