@@ -38,7 +38,7 @@ export interface CalculateInput {
 export class CalcInputDto implements CalculateInput {
   @Transform(({ value }) => value === true || value === 'true')
   @IsBoolean()
-  isCompact: boolean;
+  isCompact!: boolean;
 
   @Transform(({ value }) => Number(value))
   @IsNumber(
@@ -46,54 +46,54 @@ export class CalcInputDto implements CalculateInput {
     { message: 'mass должен быть числом' },
   )
   @Min(0.000001, { message: 'mass должен быть > 0' })
-  mass: number; // кг
+  mass!: number; // кг
 
  @Transform(({ value }) => Number(value))
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l1  должно быть числом' })
-  l1: number;
+  l1!: number;
 
   @Transform(({ value }) => Number(value))
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l2  должно быть числом' })
-  l2: number;
+  l2!: number;
 
   @Transform(({ value }) => Number(value))
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l3  должно быть числом' })
-  l3: number;
+  l3!: number;
 
   @Transform(({ value }) => Number(value))
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l4 число' })
   @Min(0, { message: 'l4 не может быть отрицательным' })
-  l4: number;
+  l4!: number;
 
   @Transform(({ value }) => Number(value))
   @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'l5 число' })
   @Min(0, { message: 'l5 не может быть отрицательным' })
-  l5: number;
+  l5!: number;
 
   @Transform(({ value }) => Number(value))
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: 'maxTemperature должно быть числом' },
   )
-  maxTemperature: number;
+  maxTemperature!: number;
 
   @Transform(({ value }) => value === true || value === 'true')
   @IsBoolean()
-  aggressiveEnv: boolean;
+  aggressiveEnv!: boolean;
 
   @Transform(({ value }) => Number(value))
   @IsInt({ message: 'guideCount должен быть целым числом' })
   @IsIn([1, 2], { message: 'guideCount должен быть 1 или 2' })
-  guideCount: number; // направляющих
+  guideCount!: number; // направляющих
 
   @Transform(({ value }) => Number(value))
   @IsInt({ message: 'carriageCount должен быть целым числом' })
   @IsIn([1, 2], { message: 'carriageCount должен быть 1 или 2' })
-  carriageCount: number; // кареток
+  carriageCount!: number; // кареток
 
   @IsString()
   @IsEnum(PlaneEnum, {
     message: `plane должно быть одним из: ${Object.values(PlaneEnum).join(', ')}`,
   })
-  plane: PlaneEnum;
+  plane!: PlaneEnum;
 }
